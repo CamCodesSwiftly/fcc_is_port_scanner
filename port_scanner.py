@@ -19,20 +19,16 @@ def test_single_port(target, port, verbose = False):
     else:
         s.close()
         return f"The connection to Port {port} failed with error code: {result}"
-    # return(open_ports)
 
 
 def get_open_ports(target, port_range, verbose):
     # check if address is correct
     invalid_address = is_invalid_address(target)
-    if invalid_address == False:
+    if invalid_address:
         return invalid_address
     
-
-
-    print(f"Scanning port range: {port_range} on IP: {target}")
-
     # scan for ports
+    print(f"Scanning port range: {port_range} on IP: {target}")
     open_ports = []
     for port in range(port_range[0], port_range[1] + 1):
         if port in ports_and_services:
@@ -65,20 +61,16 @@ def get_open_ports(target, port_range, verbose):
 
     return open_ports
 
-def is_invalid_address(address):
-    invalid = None
-    try:
-        socket.gethostbyaddr(address)
-        invalid = False
-    except socket.herror:
-        invalid = True
-    except socket.gaierror:
-        invalid = True
 
-    if invalid == True:
-        if address[0].isdigit():
-            return "Error: Invalid IP address"
-        return "Error: Invalid hostname"
-
-    return False  
          
+def is_invalid_address(address):
+    if address[0].isdigit():
+        try:
+            socket.gethostbyaddr(address)
+        except (socket.herror, socket.gaierror):
+            return "Error: Invalid IP address"    
+    else:
+        try:
+            socket.gethostbyname(address)
+        except (socket.gaierror, socket.herror):
+            return "Error: Invalid hostname" 
